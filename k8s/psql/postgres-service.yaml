@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: postgres-db-service  # This must match the hostname your backend is looking for
+  namespace: default          # Make sure this matches the backend's namespace
+spec:
+  selector:
+    app: postgres-db              # This must match the 'app' label on your postgres pod(s)
+  ports:
+    - protocol: TCP
+      port: 5432              # The port the service will listen on
+      targetPort: 5432        # The port the postgres container is listening on

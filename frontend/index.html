@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simple CRM</title>
+    <style>
+        body { font-family: sans-serif; padding: 20px; }
+        form { margin-bottom: 20px; }
+        input { padding: 8px; margin-right: 10px; }
+        button { padding: 10px 15px; cursor: pointer; }
+        ul { list-style-type: none; padding: 0; }
+        li { background: #f4f4f4; margin-bottom: 5px; padding: 10px; border-radius: 5px; }
+    </style>
+</head>
+<body>
+    <h1>Simple CRM</h1>
+
+    <form id="user-form">
+        <input type="text" id="name" placeholder="Name" required>
+        <input type="email" id="email" placeholder="Email" required>
+        <button type="submit">Add User</button>
+    </form>
+
+    <hr>
+
+    <button onclick="fetchUsers()">View All Users</button>
+    
+    <h2>Users</h2>
+    <ul id="user-list"></ul>
+
+    <script>
+        const API_URL = '/api/users';
+
+        document.getElementById('user-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const name = document.getElementById('name').value;
+            const email = document.getElementById('email').value;
+
+            try {
+                const response = await fetch(API_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ name, email }),
+                });
+
+                if (response.ok) {
+                    document.getElementById('name').value = '';
+                    document.getElementById('email').value = '';
+                    fetchUsers(); // Refresh the list
+                } else {
+                    console.error('Failed to add user');
+                }
+            } catch (error) {
+                console.error('Error adding user:', error);
+            }
+        });
+
+        const fetchUsers = async () => {
+            try {
+                const response = await fetch(API_URL);
+                const users = await response.json();
+                
+                const userList = document.getElementById('user-list');
+                userList.innerHTML = ''; // Clear existing list
+                
+                users.forEach(user => {
+                    const li = document.createElement('li');
+                    li.textContent = `${user.name} - ${user.email}`;
+                    userList.appendChild(li);
+                });
+            } catch (error) {
+                console.error('Error fetching users:', error);
+            }
+        };
+
+        // Fetch users on page load
+        document.addEventListener('DOMContentLoaded', fetchUsers);
+    </script>
+</body>
+</html>
