@@ -1,0 +1,34 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Release.Name }}-backend-deployment
+spec:
+  replicas: {{ .Values.backend.replicaCount }}
+  selector:
+    matchLabels:
+      app: backend
+  template:
+    metadata:
+      labels:
+        app: backend
+    spec:
+      initContainers:
+      - name: wait-for-postgres
+        image: busybox:1.36
+        command: ['sh', '-c', 'until nc -z -v -w30 postgres-db-service 5432; do echo "Waiting for PostgreSQL..."; sleep 5; done;']
+      containers:
+      - name: backend
+        image: "{{ .Values.backend.image.repository }}:{{ .Values.backend.image.tag }}"
+        ports:
+        - containerPort: {{ .Values.backend.service.port }}
+        env:
+        - name: PGHOST
+          value: "postgres-db-service"
+        - name: PGDATABASE
+          value: "postgres"
+        - name: PGUSER
+          value: "postgres"
+        - name: PGPASSWORD
+          value: {{ .Values.postgresql.password | quote }}
+        - name: PGPORT
+          value: "5432"

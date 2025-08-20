@@ -1,0 +1,29 @@
+# Configuration for the entire application
+replicaCount: 1
+
+# Frontend Service Configuration
+frontend:
+  replicaCount: 1
+  image:
+    repository: nordcs/my-web-app
+    tag: "v2"
+  service:
+    type: LoadBalancer
+    port: 80
+
+# Backend Service Configuration
+backend:
+  replicaCount: 1
+  image:
+    repository: nordcs/backend
+    tag: "v3"
+  service:
+    type: ClusterIP
+    port: 5000
+
+# PostgreSQL Database Configuration
+postgresql:
+  image:
+    repository: postgres
+    tag: "14"
+  password: "mysecretpassword"
